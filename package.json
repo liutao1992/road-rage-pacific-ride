@@ -1,0 +1,10 @@
+{
+  "name": "road-rage-pacific-ride",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "check": "node --check game.js && node --check physics.js && node --check police.js && node --check music.js && node --check scripts/generate-soundtrack.mjs",
+    "preview": "python3 -m http.server 8000 --bind 127.0.0.1"
+  }
+}

@@ -2,25 +2,25 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#142028"><meta name="description" content="驶上落日海岸，体验 3D 摩托公路竞速、漂移与近身混战。支持键盘和触屏。">
+  <meta name="theme-color" content="#142028"><meta name="description" content="驶上落日海岸，体验 3D 摩托公路竞速、漂移与近身混战。加入巡警追缉、警察路障、武器补给。支持键盘和触屏。">
   <title>海岸狂飙 · ROAD RAGE</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect rx='23' width='100' height='100' fill='%23ff682c'/%3E%3Cpath d='M24 76 47 20h31L55 49h22L37 82l9-29z' fill='%23142028'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./style.css?v=2">
 </head>
 <body>
   <main id="game" aria-label="3D 摩托竞速游戏">
     <canvas id="world" aria-label="3D 公路游戏场景"></canvas>
     <div class="vignette"></div><div id="impact"></div>
     <header class="topbar">
-      <a class="wordmark" href="#" id="brand" aria-label="返回主菜单"><span class="brand-icon">ϟ</span> ROAD RAGE<span class="edition">公路传说 / 1996</span></a>
+      <a class="wordmark" href="#" id="brand" aria-label="返回主菜单"><span class="brand-icon">ϟ</span> ROAD RAGE<span class="edition">追缉更新 / 2.0</span></a>
       <div class="top-actions"><span class="live-dot"></span><span id="worldLabel">太平洋海岸 · 黄昏</span><button id="musicBtn" class="icon-button music-button" title="背景音乐 (B)" aria-label="关闭背景音乐" aria-pressed="true">BGM <span id="musicState">开</span></button><button id="soundBtn" class="icon-button" title="总声音 (M)" aria-label="关闭声音" aria-pressed="true">♫<span id="soundState">开</span></button><button id="fullBtn" class="icon-button" title="全屏 (F)" aria-label="切换全屏">⛶</button><button id="helpBtn" class="icon-button" title="操作说明 (H)" aria-label="操作说明">?</button></div>
     </header>
 
     <section id="menu" class="menu">
       <div class="menu-copy">
-        <p class="chapter"><span>01</span> 重返公路，规则由你改写</p>
+        <p class="chapter"><span>01</span> 公路混战，巡警已加入巡逻</p>
         <h1>海岸<br><span>狂飙</span><i>ROAD RAGE</i></h1>
-        <p class="intro">引擎的咆哮，轮胎的尖叫。<br>追逐落日，把所有对手甩在身后。</p>
+        <p class="intro">甩开车手，摆脱巡警。<br>穿过路障，带着战利品冲过终点。</p>
         <div class="race-spec"><span><b id="routeLength">4.8</b> 公里</span><span><b>8</b> 名车手</span><span><b>∞</b> 种可能</span></div>
         <div class="start-row"><button id="startBtn" class="primary">点火 · 开始比赛 <span>↗</span></button><button id="controlsBtn" class="text-button">操作指南 <span>↗</span></button></div>
         <p class="quick-start"><kbd>W</kbd> 加速 <kbd>A</kbd><kbd>D</kbd> 转向 <kbd>SPACE</kbd> 漂移 <span>按 Enter 出发</span></p>
@@ -37,25 +37,27 @@
     </section>
 
     <section id="hud" class="hud hidden" aria-label="比赛仪表">
-      <div class="race-top"><div class="position"><span id="rank">8</span><small>/ 8<em>当前名次</em></small></div><div class="race-time"><label>比赛用时</label><b id="timer">00:00.00</b><small id="bestTime">本地最佳 —</small></div><button id="pauseBtn" class="icon-button" aria-label="暂停比赛">Ⅱ</button></div>
+      <div class="race-top"><div class="position"><span id="rank">8</span><small>/ 8<em>当前名次</em></small></div><div class="race-time"><label>比赛用时</label><b id="timer">00:00.00</b><small id="bestTime">本地最佳 —</small></div><button id="pauseBtn" class="icon-button" aria-label="暂停比赛">Ⅱ</button><button class="icon-button rear-button" data-key="KeyV" aria-label="按住查看后方">后视</button></div>
       <div class="leaderboard" id="leaderboard"></div>
+      <div id="pursuitPanel" class="pursuit-panel"><div><b id="pursuitState">公路巡逻中</b><strong id="wantedStars">☆☆☆</strong></div><div class="heat-track"><i id="heatBar"></i></div><small id="pursuitHint">超速、逆行与攻击会提升通缉</small><div class="arrest-track"><i id="arrestBar"></i></div></div>
+      <div id="targetPanel" class="target-panel hidden"><div><b id="targetName"></b><span id="targetDirection"></span></div><div><i id="targetHealth"></i></div></div>
       <div class="map-block"><div class="map-label"><span id="mapName">落日海岸</span><span id="distance">0.00 / 4.8 km</span></div><canvas id="minimap" width="180" height="180" aria-label="赛道小地图"></canvas><div class="progress-track"><i id="progress"></i></div></div>
       <div id="toast" class="toast" aria-live="polite"></div>
       <div id="driftNotice" class="drift-notice hidden"><small>DRIFT / 侧滑中</small><strong id="driftScore">0</strong><span>松开手刹，补充氮气</span></div>
-      <div class="vitals"><div class="vital-label"><span>车况</span><b id="healthText">100%</b></div><div class="meter health"><i id="healthBar"></i></div><div class="vital-label"><span>氮气 <kbd>SHIFT</kbd></span><b id="nitroText">100%</b></div><div class="meter nitro"><i id="nitroBar"></i></div><div class="combat-hint"><kbd>J</kbd> 左侧攻击 <span>•</span> 右侧攻击 <kbd>K</kbd></div></div>
+      <div class="vitals"><div class="combat-state"><b id="weaponState">徒手</b><span id="comboState">J/K 攻击 · Q/E 踢击</span></div><div class="vital-label"><span>体力 <kbd>L 格挡</kbd></span><b id="staminaText">100%</b></div><div class="meter stamina"><i id="staminaBar"></i></div><div class="vital-label"><span>车况</span><b id="healthText">100%</b></div><div class="meter health"><i id="healthBar"></i></div><div class="vital-label"><span>氮气 <kbd>SHIFT</kbd></span><b id="nitroText">100%</b></div><div class="meter nitro"><i id="nitroBar"></i></div><div class="combat-hint"><kbd>J</kbd> 左侧攻击 <span>•</span> 右侧攻击 <kbd>K</kbd></div></div>
       <div class="speedometer"><svg viewBox="0 0 230 180" aria-hidden="true"><path class="gauge-bg" d="M28 151 A96 96 0 1 1 202 151"/><path id="speedArc" class="gauge-fg" d="M28 151 A96 96 0 1 1 202 151" pathLength="100"/><path class="gauge-ticks" d="M31 119l8-2M39 76l7 4M72 42l4 8M115 30v9M158 42l-4 8M191 76l-7 4M199 119l-8-2"/></svg><div class="speed-digits"><strong id="speed">000</strong><span>km/h</span></div><div class="gear"><span>挡位</span><b id="gear">N</b><small id="rideState">保持全油门</small></div></div>
       <div class="bottom-hint"><kbd>SPACE</kbd> 漂移 <span>/</span> <kbd>C</kbd> 镜头 <span>/</span> <kbd>H</kbd> 帮助 <span>/</span> <kbd>ESC</kbd> 暂停</div>
     </section>
 
     <div id="countdown" class="countdown hidden" aria-live="assertive"></div>
-    <div id="touchControls" class="touch-controls hidden" aria-label="触屏操作"><div class="touch-left"><button data-key="KeyA" aria-label="左转">◀</button><button data-key="KeyD" aria-label="右转">▶</button><button data-key="KeyS" class="touch-brake">刹车</button></div><div class="touch-right"><div><button data-key="KeyJ">左击</button><button data-key="KeyK">右击</button><button data-key="ShiftLeft" class="touch-nitro">氮气</button></div><div><button data-key="Space" class="touch-drift">漂移</button><button data-key="KeyW" class="touch-gas">油门</button></div></div></div>
+    <div id="touchControls" class="touch-controls hidden" aria-label="触屏操作"><div class="touch-left"><div class="touch-tools"><button data-key="KeyL">格挡</button><button id="touchAttackMode">切换：拳击</button><button data-key="KeyV" class="touch-look">后视</button></div><div class="touch-steer"><button data-key="KeyA" aria-label="左转">◀</button><button data-key="KeyD" aria-label="右转">▶</button><button data-key="KeyS" class="touch-brake">刹车</button></div></div><div class="touch-right"><div><button data-key="KeyJ">左击</button><button data-key="KeyK">右击</button><button data-key="ShiftLeft" class="touch-nitro">氮气</button></div><div><button data-key="Space" class="touch-drift">漂移</button><button data-key="KeyW" class="touch-gas">油门</button></div></div></div>
 
     <div id="pauseModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="pauseTitle"><div class="modal-panel pause-panel"><p class="modal-kicker">引擎暂歇 / PIT STOP</p><h2 id="pauseTitle">稍作停留。</h2><p>公路一直都在，准备好了就继续。</p><button id="resumeBtn" class="primary">继续比赛 <span>↗</span></button><button id="restartBtn" class="secondary">重新发车 <kbd>R</kbd></button><button id="menuBtn" class="text-button">返回公路选择</button></div></div>
-    <div id="helpModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="modal-panel help-panel"><button id="closeHelp" class="close-button" aria-label="关闭操作指南">×</button><p class="modal-kicker">先了解，再放肆 / RIDER'S MANUAL</p><h2 id="helpTitle">公路生存指南</h2><div class="control-grid"><div><kbd>W / ↑</kbd><span>加速</span></div><div><kbd>S / ↓</kbd><span>刹车 / 减速</span></div><div><kbd>A D / ← →</kbd><span>左右转向</span></div><div><kbd>SPACE + 转向</kbd><span>手刹漂移</span></div><div><kbd>SHIFT</kbd><span>氮气加速</span></div><div><kbd>J / K</kbd><span>左击 / 右击</span></div><div><kbd>C</kbd><span>切换三种镜头</span></div><div><kbd>P / ESC</kbd><span>暂停 / 继续</span></div><div><kbd>R</kbd><span>重新比赛</span></div><div><kbd>M / B / F / H</kbd><span>总声音 / 音乐 / 全屏 / 帮助</span></div></div><div class="riding-tip"><b>如何漂亮地过弯？</b><p>速度超过 60 km/h，按住空格并转向进入漂移。用反方向修正车身，松开空格结束漂移；漂移越久，获得的积分与氮气越多。离开柏油路会失去抓地力。</p><b>靠近，再出手。</b><p>与对手并排，使用 J 或 K 攻击对应一侧。对手也会反击。躲开迎面车辆，车况归零即比赛结束。</p></div><p class="help-note">点击开始后自动播放原创配乐。B 切换音乐，M 静音全部声音。手机建议横屏，支持多指操作。</p><button id="helpDone" class="primary">明白了，出发 <span>↗</span></button></div></div>
-    <div id="resultModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="resultTitle"><div class="modal-panel result-panel"><p class="modal-kicker" id="resultKicker">终点只是下一段路的开始</p><h2 id="resultTitle">完成比赛</h2><div class="result-rank"><strong id="resultRank">1</strong><span>/ 8 名<br><em id="resultSubtitle">公路属于你</em></span></div><div class="result-stats"><div><span>用时</span><b id="resultTime">02:12.52</b></div><div><span>最高时速</span><b id="resultSpeed">240 km/h</b></div><div><span>漂移积分</span><b id="resultDrift">0</b></div><div><span>有效攻击</span><b id="resultHits">0</b></div></div><p id="recordNote"></p><button id="raceAgain" class="primary">再跑一次 <span>↗</span></button><button id="resultMenu" class="text-button">选择其他公路</button></div></div>
+    <div id="helpModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="modal-panel help-panel"><button id="closeHelp" class="close-button" aria-label="关闭操作指南">×</button><p class="modal-kicker">先了解，再放肆 / RIDER'S MANUAL</p><h2 id="helpTitle">公路生存指南</h2><div class="control-grid"><div><kbd>W / ↑</kbd><span>加速</span></div><div><kbd>S / ↓</kbd><span>刹车 / 减速</span></div><div><kbd>A D / ← →</kbd><span>左右转向</span></div><div><kbd>SPACE + 转向</kbd><span>手刹漂移</span></div><div><kbd>SHIFT</kbd><span>氮气加速</span></div><div><kbd>J / K</kbd><span>左击 / 右击</span></div><div><kbd>C / V 按住</kbd><span>镜头 / 向后看</span></div><div><kbd>Q / E</kbd><span>左右踢击，推开对手</span></div><div><kbd>L 按住</kbd><span>格挡攻击，消耗体力</span></div><div><kbd>P / ESC</kbd><span>暂停 / 继续</span></div><div><kbd>R</kbd><span>重新比赛</span></div><div><kbd>M / B / F / H</kbd><span>总声音 / 音乐 / 全屏 / 帮助</span></div></div><div class="riding-tip"><b>如何漂亮地过弯？</b><p>速度超过 60 km/h，按住空格并转向进入漂移。用反方向修正车身，松开空格干净出弯，获得氮气与短时自动加速。碰撞或冲出公路会丢失漂移奖励。离开柏油路会失去抓地力。</p><b>靠近，再出手。</b><p>与对手并排，J/K 挥拳或使用拾取的铁链，Q/E 踢击推开对手，按住 L 格挡。攻击消耗体力，停手会恢复。撞车会倒地并失去时间，车况归零即比赛结束。<br><br><b>巡警不会轻易放过你。</b><br>超速、逆行和战斗提高通缉。巡警靠近而速度过低时会拘捕你。拉开 58 米以上距离并保持 5 秒可脱逃，也可以击退巡警。高通缉时注意路障提示，提前选择缺口；按住 V 查看后方。<br><br>路上的 CHAIN、NITRO 和 REPAIR 光环分别提供铁链、氮气和维修。连续跟车也能积累尾流奖励。</p></div><p class="help-note">点击开始后自动播放原创配乐。B 切换音乐，M 静音全部声音。手机建议横屏，支持多指操作。</p><button id="helpDone" class="primary">明白了，出发 <span>↗</span></button></div></div>
+    <div id="resultModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="resultTitle"><div class="modal-panel result-panel"><p class="modal-kicker" id="resultKicker">终点只是下一段路的开始</p><h2 id="resultTitle">完成比赛</h2><div class="result-rank"><strong id="resultRank">1</strong><span>/ 8 名<br><em id="resultSubtitle">公路属于你</em></span></div><div class="result-stats"><div><span>用时</span><b id="resultTime">02:12.52</b></div><div><span>最高时速</span><b id="resultSpeed">240 km/h</b></div><div><span>漂移积分</span><b id="resultDrift">0</b></div><div><span>有效攻击</span><b id="resultHits">0</b></div><div><span>摆脱追缉</span><b id="resultEvades">0</b></div><div><span>击倒对手</span><b id="resultKnockouts">0</b></div></div><p id="recordNote"></p><button id="raceAgain" class="primary">再跑一次 <span>↗</span></button><button id="resultMenu" class="text-button">选择其他公路</button></div></div>
     <div id="loading" class="loading"><div class="loading-mark">ϟ</div><b>正在唤醒引擎</b><span>铺设公路，点亮落日…</span></div>
     <div id="error" class="modal hidden"><div class="modal-panel"><h2>引擎暂未启动</h2><p id="errorText">请使用支持 WebGL 的现代浏览器打开。</p><button class="primary" onclick="location.reload()">重新加载</button></div></div>
   </main>
-  <script type="module" src="./game.js"></script>
+  <script type="module" src="./game.js?v=2"></script>
 </body>
 </html>
